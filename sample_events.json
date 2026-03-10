@@ -1,0 +1,144 @@
+[
+  {
+    "_comment": "=== MFA Fatigue Attack Scenario ===",
+    "_teach": "An attacker who has stolen a password spams MFA push notifications hoping the user accidentally approves one."
+  },
+  {
+    "uuid": "evt-mfa-001",
+    "published": "2026-02-26T14:00:00.000Z",
+    "eventType": "system.push.send_factor_verify_push",
+    "outcome": {"result": "SUCCESS"},
+    "actor": {"id": "00u1victim", "alternateId": "jane.doe@acme.com", "displayName": "Jane Doe"},
+    "client": {"ipAddress": "198.51.100.10", "geographicalContext": {"city": "Chicago", "state": "Illinois", "country": "United States", "geolocation": {"lat": 41.8781, "lon": -87.6298}}}
+  },
+  {
+    "uuid": "evt-mfa-002",
+    "published": "2026-02-26T14:01:30.000Z",
+    "eventType": "system.push.send_factor_verify_push",
+    "outcome": {"result": "SUCCESS"},
+    "actor": {"id": "00u1victim", "alternateId": "jane.doe@acme.com", "displayName": "Jane Doe"},
+    "client": {"ipAddress": "198.51.100.10", "geographicalContext": {"city": "Chicago", "state": "Illinois", "country": "United States", "geolocation": {"lat": 41.8781, "lon": -87.6298}}}
+  },
+  {
+    "uuid": "evt-mfa-003",
+    "published": "2026-02-26T14:02:45.000Z",
+    "eventType": "system.push.send_factor_verify_push",
+    "outcome": {"result": "SUCCESS"},
+    "actor": {"id": "00u1victim", "alternateId": "jane.doe@acme.com", "displayName": "Jane Doe"},
+    "client": {"ipAddress": "198.51.100.10", "geographicalContext": {"city": "Chicago", "state": "Illinois", "country": "United States", "geolocation": {"lat": 41.8781, "lon": -87.6298}}}
+  },
+  {
+    "uuid": "evt-mfa-004",
+    "published": "2026-02-26T14:04:00.000Z",
+    "eventType": "system.push.send_factor_verify_push",
+    "outcome": {"result": "SUCCESS"},
+    "actor": {"id": "00u1victim", "alternateId": "jane.doe@acme.com", "displayName": "Jane Doe"},
+    "client": {"ipAddress": "198.51.100.10", "geographicalContext": {"city": "Chicago", "state": "Illinois", "country": "United States", "geolocation": {"lat": 41.8781, "lon": -87.6298}}}
+  },
+  {
+    "uuid": "evt-mfa-005",
+    "published": "2026-02-26T14:05:10.000Z",
+    "eventType": "system.push.send_factor_verify_push",
+    "outcome": {"result": "SUCCESS"},
+    "actor": {"id": "00u1victim", "alternateId": "jane.doe@acme.com", "displayName": "Jane Doe"},
+    "client": {"ipAddress": "198.51.100.10", "geographicalContext": {"city": "Chicago", "state": "Illinois", "country": "United States", "geolocation": {"lat": 41.8781, "lon": -87.6298}}}
+  },
+  {
+    "uuid": "evt-mfa-006",
+    "published": "2026-02-26T14:06:00.000Z",
+    "eventType": "user.authentication.auth_via_mfa",
+    "outcome": {"result": "SUCCESS"},
+    "actor": {"id": "00u1victim", "alternateId": "jane.doe@acme.com", "displayName": "Jane Doe"},
+    "client": {"ipAddress": "198.51.100.10", "geographicalContext": {"city": "Chicago", "state": "Illinois", "country": "United States", "geolocation": {"lat": 41.8781, "lon": -87.6298}}}
+  },
+  {
+    "_comment": "=== Impossible Travel Scenario ===",
+    "_teach": "A user logs in from New York, then 30 minutes later from Tokyo. No human can travel 6,700+ miles in 30 minutes."
+  },
+  {
+    "uuid": "evt-travel-001",
+    "published": "2026-02-26T10:00:00.000Z",
+    "eventType": "user.session.start",
+    "outcome": {"result": "SUCCESS"},
+    "actor": {"id": "00u2traveler", "alternateId": "bob.smith@acme.com", "displayName": "Bob Smith"},
+    "client": {"ipAddress": "203.0.113.50", "geographicalContext": {"city": "New York", "state": "New York", "country": "United States", "geolocation": {"lat": 40.7128, "lon": -74.0060}}}
+  },
+  {
+    "uuid": "evt-travel-002",
+    "published": "2026-02-26T10:30:00.000Z",
+    "eventType": "user.session.start",
+    "outcome": {"result": "SUCCESS"},
+    "actor": {"id": "00u2traveler", "alternateId": "bob.smith@acme.com", "displayName": "Bob Smith"},
+    "client": {"ipAddress": "192.0.2.100", "geographicalContext": {"city": "Tokyo", "state": "Tokyo", "country": "Japan", "geolocation": {"lat": 35.6762, "lon": 139.6503}}}
+  },
+  {
+    "_comment": "=== Brute Force Scenario ===",
+    "_teach": "An attacker tries many passwords from the same IP. 10+ failures in 5 minutes is a strong signal."
+  },
+  {"uuid": "evt-brute-001", "published": "2026-02-26T08:00:00.000Z", "eventType": "user.session.start", "outcome": {"result": "FAILURE", "reason": "INVALID_CREDENTIALS"}, "actor": {"id": "00u3target", "alternateId": "admin@acme.com", "displayName": "Admin User"}, "client": {"ipAddress": "192.0.2.200", "geographicalContext": {"city": "Moscow", "state": "Moscow", "country": "Russia", "geolocation": {"lat": 55.7558, "lon": 37.6173}}}},
+  {"uuid": "evt-brute-002", "published": "2026-02-26T08:00:15.000Z", "eventType": "user.session.start", "outcome": {"result": "FAILURE", "reason": "INVALID_CREDENTIALS"}, "actor": {"id": "00u3target", "alternateId": "admin@acme.com", "displayName": "Admin User"}, "client": {"ipAddress": "192.0.2.200", "geographicalContext": {"city": "Moscow", "state": "Moscow", "country": "Russia", "geolocation": {"lat": 55.7558, "lon": 37.6173}}}},
+  {"uuid": "evt-brute-003", "published": "2026-02-26T08:00:30.000Z", "eventType": "user.session.start", "outcome": {"result": "FAILURE", "reason": "INVALID_CREDENTIALS"}, "actor": {"id": "00u3target", "alternateId": "admin@acme.com", "displayName": "Admin User"}, "client": {"ipAddress": "192.0.2.200", "geographicalContext": {"city": "Moscow", "state": "Moscow", "country": "Russia", "geolocation": {"lat": 55.7558, "lon": 37.6173}}}},
+  {"uuid": "evt-brute-004", "published": "2026-02-26T08:00:45.000Z", "eventType": "user.session.start", "outcome": {"result": "FAILURE", "reason": "INVALID_CREDENTIALS"}, "actor": {"id": "00u3target", "alternateId": "admin@acme.com", "displayName": "Admin User"}, "client": {"ipAddress": "192.0.2.200", "geographicalContext": {"city": "Moscow", "state": "Moscow", "country": "Russia", "geolocation": {"lat": 55.7558, "lon": 37.6173}}}},
+  {"uuid": "evt-brute-005", "published": "2026-02-26T08:01:00.000Z", "eventType": "user.session.start", "outcome": {"result": "FAILURE", "reason": "INVALID_CREDENTIALS"}, "actor": {"id": "00u3target", "alternateId": "admin@acme.com", "displayName": "Admin User"}, "client": {"ipAddress": "192.0.2.200", "geographicalContext": {"city": "Moscow", "state": "Moscow", "country": "Russia", "geolocation": {"lat": 55.7558, "lon": 37.6173}}}},
+  {"uuid": "evt-brute-006", "published": "2026-02-26T08:01:15.000Z", "eventType": "user.session.start", "outcome": {"result": "FAILURE", "reason": "INVALID_CREDENTIALS"}, "actor": {"id": "00u3target", "alternateId": "admin@acme.com", "displayName": "Admin User"}, "client": {"ipAddress": "192.0.2.200", "geographicalContext": {"city": "Moscow", "state": "Moscow", "country": "Russia", "geolocation": {"lat": 55.7558, "lon": 37.6173}}}},
+  {"uuid": "evt-brute-007", "published": "2026-02-26T08:01:30.000Z", "eventType": "user.session.start", "outcome": {"result": "FAILURE", "reason": "INVALID_CREDENTIALS"}, "actor": {"id": "00u3target", "alternateId": "admin@acme.com", "displayName": "Admin User"}, "client": {"ipAddress": "192.0.2.200", "geographicalContext": {"city": "Moscow", "state": "Moscow", "country": "Russia", "geolocation": {"lat": 55.7558, "lon": 37.6173}}}},
+  {"uuid": "evt-brute-008", "published": "2026-02-26T08:01:45.000Z", "eventType": "user.session.start", "outcome": {"result": "FAILURE", "reason": "INVALID_CREDENTIALS"}, "actor": {"id": "00u3target", "alternateId": "admin@acme.com", "displayName": "Admin User"}, "client": {"ipAddress": "192.0.2.200", "geographicalContext": {"city": "Moscow", "state": "Moscow", "country": "Russia", "geolocation": {"lat": 55.7558, "lon": 37.6173}}}},
+  {"uuid": "evt-brute-009", "published": "2026-02-26T08:02:00.000Z", "eventType": "user.session.start", "outcome": {"result": "FAILURE", "reason": "INVALID_CREDENTIALS"}, "actor": {"id": "00u3target", "alternateId": "admin@acme.com", "displayName": "Admin User"}, "client": {"ipAddress": "192.0.2.200", "geographicalContext": {"city": "Moscow", "state": "Moscow", "country": "Russia", "geolocation": {"lat": 55.7558, "lon": 37.6173}}}},
+  {"uuid": "evt-brute-010", "published": "2026-02-26T08:02:15.000Z", "eventType": "user.session.start", "outcome": {"result": "FAILURE", "reason": "INVALID_CREDENTIALS"}, "actor": {"id": "00u3target", "alternateId": "admin@acme.com", "displayName": "Admin User"}, "client": {"ipAddress": "192.0.2.200", "geographicalContext": {"city": "Moscow", "state": "Moscow", "country": "Russia", "geolocation": {"lat": 55.7558, "lon": 37.6173}}}},
+  {"uuid": "evt-brute-011", "published": "2026-02-26T08:02:30.000Z", "eventType": "user.session.start", "outcome": {"result": "FAILURE", "reason": "INVALID_CREDENTIALS"}, "actor": {"id": "00u3target", "alternateId": "admin@acme.com", "displayName": "Admin User"}, "client": {"ipAddress": "192.0.2.200", "geographicalContext": {"city": "Moscow", "state": "Moscow", "country": "Russia", "geolocation": {"lat": 55.7558, "lon": 37.6173}}}},
+  {
+    "_comment": "=== Suspicious MFA Enrollment Scenario ===",
+    "_teach": "After compromising an account, attackers enroll their own MFA device to maintain access even after password reset."
+  },
+  {
+    "uuid": "evt-mfaenroll-001",
+    "published": "2026-02-26T15:00:00.000Z",
+    "eventType": "user.session.start",
+    "outcome": {"result": "SUCCESS"},
+    "actor": {"id": "00u4mfavictim", "alternateId": "carol.white@acme.com", "displayName": "Carol White"},
+    "client": {"ipAddress": "198.51.100.99", "geographicalContext": {"city": "Lagos", "state": "Lagos", "country": "Nigeria", "geolocation": {"lat": 6.5244, "lon": 3.3792}}}
+  },
+  {
+    "uuid": "evt-mfaenroll-002",
+    "published": "2026-02-26T15:05:00.000Z",
+    "eventType": "user.mfa.factor.activate",
+    "outcome": {"result": "SUCCESS"},
+    "actor": {"id": "00u4mfavictim", "alternateId": "carol.white@acme.com", "displayName": "Carol White"},
+    "client": {"ipAddress": "198.51.100.99", "geographicalContext": {"city": "Lagos", "state": "Lagos", "country": "Nigeria", "geolocation": {"lat": 6.5244, "lon": 3.3792}}},
+    "target": [{"id": "factor123", "type": "Factor", "displayName": "Google Authenticator"}]
+  },
+  {
+    "_comment": "=== Admin Privilege Escalation Scenario ===",
+    "_teach": "Granting admin privileges outside business hours is suspicious. Legitimate admin changes happen during work hours with proper change management."
+  },
+  {
+    "uuid": "evt-priv-001",
+    "published": "2026-02-26T23:30:00.000Z",
+    "eventType": "user.account.privilege.grant",
+    "outcome": {"result": "SUCCESS"},
+    "actor": {"id": "00u5admin", "alternateId": "rogue.admin@acme.com", "displayName": "Rogue Admin"},
+    "target": [{"id": "00u6target", "type": "User", "alternateId": "new.admin@acme.com", "displayName": "New Admin"}],
+    "client": {"ipAddress": "203.0.113.75", "geographicalContext": {"city": "Seattle", "state": "Washington", "country": "United States", "geolocation": {"lat": 47.6062, "lon": -122.3321}}}
+  },
+  {
+    "_comment": "=== Benign Events (should NOT trigger alerts) ===",
+    "_teach": "These normal events verify your rules don't produce false positives. A good detection engine is measured by what it correctly ignores too."
+  },
+  {
+    "uuid": "evt-benign-001",
+    "published": "2026-02-26T12:00:00.000Z",
+    "eventType": "user.session.start",
+    "outcome": {"result": "SUCCESS"},
+    "actor": {"id": "00u7normal", "alternateId": "normal.user@acme.com", "displayName": "Normal User"},
+    "client": {"ipAddress": "10.0.0.1", "geographicalContext": {"city": "San Francisco", "state": "California", "country": "United States", "geolocation": {"lat": 37.7749, "lon": -122.4194}}}
+  },
+  {
+    "uuid": "evt-benign-002",
+    "published": "2026-02-26T14:00:00.000Z",
+    "eventType": "user.account.privilege.grant",
+    "outcome": {"result": "SUCCESS"},
+    "actor": {"id": "00u8admin", "alternateId": "legit.admin@acme.com", "displayName": "Legit Admin"},
+    "target": [{"id": "00u9target", "type": "User", "alternateId": "promoted.user@acme.com", "displayName": "Promoted User"}],
+    "client": {"ipAddress": "10.0.0.2", "geographicalContext": {"city": "San Francisco", "state": "California", "country": "United States", "geolocation": {"lat": 37.7749, "lon": -122.4194}}}
+  }
+]
