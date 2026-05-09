@@ -15,8 +15,25 @@ A Python-based detection engine that parses Okta System Log events and identifie
 ## Setup
 
 ```bash
-pip install requests   # only external dependency
+python3 -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
 ```
+
+## Reproducible verification
+
+Detection behavior is covered by `tests/test_detections.py`. Each rule must alert on its scenario slice in `sample_events.json`, stay silent on the benign rows, and produce exactly one alert per rule when the full sample is loaded.
+
+```bash
+source .venv/bin/activate
+python -m pytest tests/ -v
+```
+
+Latest captured output (regenerate locally after changes): [docs/pytest_last_run.txt](docs/pytest_last_run.txt)
+
+For your README or portfolio, you can screenshot the terminal after `pytest -v` shows all passed.
+
+**Okta concepts refresher (what this repo is doing):** open [docs/okta-detection-refresh.html](docs/okta-detection-refresh.html) in a browser.
 
 ### Optional: VirusTotal API key (for IP enrichment)
 ```bash
@@ -57,6 +74,11 @@ okta-detection-engine/
   okta_detector.py        # Main CLI -- loads events, runs rules, outputs alerts
   enrichment.py           # IP enrichment via VirusTotal + ip-api.com
   sample_events.json      # Test data with scenarios for each rule
+  tests/
+    test_detections.py    # Pytest: scenarios + benign-negative + full-sample counts
+  docs/
+    okta-detection-refresh.html  # Teaching page for Okta logs and this repo
+    pytest_last_run.txt   # Example pytest -v output
   detections/
     __init__.py           # Registers all detection functions
     mfa_fatigue.py        # 5+ push events + MFA success in 10 min

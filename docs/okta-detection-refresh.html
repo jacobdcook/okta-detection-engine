@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Okta detection engine: concepts and what changed</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --panel: #1a2332;
+      --text: #e6edf3;
+      --muted: #8b9cad;
+      --accent: #58a6ff;
+      --ok: #3fb950;
+      --border: #30363d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      font-size: 1rem;
+    }
+    header {
+      padding: 2rem 1.5rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #161b22 0%, var(--bg) 100%);
+    }
+    header h1 { margin: 0 0 0.5rem; font-size: 1.5rem; font-weight: 600; }
+    header p { margin: 0; color: var(--muted); max-width: 52rem; }
+    main { max-width: 52rem; margin: 0 auto; padding: 1.5rem; }
+    h2 {
+      font-size: 1.15rem;
+      margin: 2rem 0 0.75rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    h3 { font-size: 1rem; margin: 1.25rem 0 0.5rem; color: var(--text); }
+    p, li { color: var(--text); }
+    ul { padding-left: 1.25rem; }
+    li { margin: 0.35rem 0; }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin: 1rem 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin: 0.75rem 0;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.65rem;
+      text-align: left;
+    }
+    th { background: #21262d; color: var(--muted); font-weight: 600; }
+    code, pre {
+      font-family: ui-monospace, "Cascadia Code", monospace;
+      font-size: 0.85em;
+    }
+    pre {
+      background: #161b22;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.85rem 1rem;
+      overflow-x: auto;
+      margin: 0.75rem 0;
+    }
+    .tag { color: var(--ok); font-weight: 600; }
+    .muted { color: var(--muted); }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Okta System Log and this lab</h1>
+    <p>Quick refresher on what Okta emits, how the five rules map to it, and what was added to the repo for regression tests.</p>
+  </header>
+  <main>
+
+    <h2>1. What is the Okta System Log?</h2>
+    <p>Okta records administrative and user activity as <strong>events</strong>. Each event is a JSON object you pull via <code>/api/v1/logs</code> or export to a SIEM. Important fields you will see everywhere in this project:</p>
+    <ul>
+      <li><code>eventType</code>: the verb (for example <code>user.session.start</code>, <code>user.mfa.factor.activate</code>).</li>
+      <li><code>published</code>: ISO timestamp (UTC). Rules use this for sliding windows.</li>
+      <li><code>outcome.result</code>: often <code>SUCCESS</code> or <code>FAILURE</code> (logins, MFA, and so on).</li>
+      <li><code>actor</code>: who caused the event (user id and <code>alternateId</code> email).</li>
+      <li><code>client.ipAddress</code> and <code>client.geographicalContext</code>: source IP and geo (used for travel and country checks).</li>
+      <li><code>target</code>: sometimes present (privilege grant target user, MFA factor row).</li>
+    </ul>
+    <p class="muted">In a real SOC, you would normalize these into your SIEM schema. Here we read the native-ish shape from <code>sample_events.json</code>.</p>
+
+    <h2>2. The five detections (mental model)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Rule</th>
+          <th>Okta signals</th>
+          <th>Idea in one line</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>MFA Fatigue</td>
+          <td><code>system.push.send_factor_verify_push</code> storm, then <code>user.authentication.auth_via_mfa</code></td>
+          <td>Someone spammed push prompts until the user approved.</td>
+        </tr>
+        <tr>
+          <td>Impossible Travel</td>
+          <td>Two successful <code>user.session.start</code> with geo far apart in a short time</td>
+          <td>Two logins too far apart for human travel (watch VPN FPs).</td>
+        </tr>
+        <tr>
+          <td>Brute Force</td>
+          <td>Many failed <code>user.session.start</code> from one IP in five minutes</td>
+          <td>Password guessing from a single source.</td>
+        </tr>
+        <tr>
+          <td>Suspicious MFA Enrollment</td>
+          <td>Successful login from an &quot;unusual&quot; country, then <code>user.mfa.factor.activate</code> within ten minutes</td>
+          <td>Attacker adds their factor after takeover (demo uses non-US login as unusual).</td>
+        </tr>
+        <tr>
+          <td>Admin escalation (after hours)</td>
+          <td><code>user.account.privilege.grant</code> outside 07:00 to 19:00 UTC</td>
+          <td>Off-cycle admin grants deserve a ticket or confirmation.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>3. What changed in the repo (tests and packaging)</h2>
+    <div class="panel">
+      <p><span class="tag">New:</span> <code>requirements.txt</code> lists <code>requests</code> (CLI and enrichment) and <code>pytest</code>.</p>
+      <p><span class="tag">New:</span> <code>tests/test_detections.py</code> runs three kinds of checks:</p>
+      <ul>
+        <li><strong>Scenario slices:</strong> for each rule, only the UUID rows that belong to that attack are loaded. The rule must produce at least one alert with the expected <code>rule_name</code>.</li>
+        <li><strong>Benign negative:</strong> only <code>evt-benign-001</code> and <code>evt-benign-002</code> must produce <strong>zero</strong> alerts from every detector (noise control).</li>
+        <li><strong>Full sample:</strong> loading all events from <code>sample_events.json</code> must yield exactly <strong>one</strong> alert per rule (five rules, five alerts total when run per function).</li>
+      </ul>
+      <p><span class="tag">New:</span> <code>.gitignore</code> ignores <code>.venv/</code> and pytest cache so local runs stay clean.</p>
+      <p><span class="tag">New:</span> <code>docs/pytest_last_run.txt</code> holds an example <code>pytest -v</code> transcript. Re-run <code>python -m pytest tests/ -v</code> after any rule change and update it if you want the doc to stay in sync.</p>
+      <p><span class="tag">README:</span> setup now uses a venv, documents the verification section, and links to this HTML page.</p>
+    </div>
+
+    <h2>4. How sample_events.json is organized</h2>
+    <p>Objects with <code>_comment</code> and <code>_teach</code> are teaching markers and are <strong>not</strong> events (they have no <code>eventType</code>, so the CLI skips them). Each real row has a <code>uuid</code> such as <code>evt-mfa-001</code> so tests can select rows without fragile line numbers.</p>
+
+    <h2>5. Commands to run locally</h2>
+    <pre>cd okta-detection-engine
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python -m pytest tests/ -v
+python okta_detector.py --input sample_events.json</pre>
+
+    <h2>6. Interview lines you can reuse</h2>
+    <ul>
+      <li>&quot;I treat Okta System Log events as typed rows: I group by actor and time window, then encode MITRE-aligned logic in pure Python with pytest proving true positives and benign negatives on fixtures.&quot;</li>
+      <li>&quot;Impossible travel here is Haversine distance versus elapsed time; in production I would add VPN exit allowlists to tune false positives.&quot;</li>
+      <li>&quot;After-hours admin grant is UTC in the lab; in production I would shift to the org timezone and require ticket correlation.&quot;</li>
+    </ul>
+
+    <p class="muted">Open this file from disk in any browser. No network required.</p>
+  </main>
+</body>
+</html>
